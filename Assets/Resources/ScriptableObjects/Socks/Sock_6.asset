@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ea2d9bb1eeef254e87d49fb6045fe6c, type: 3}
   m_Name: Sock_6
   m_EditorClassIdentifier: 
-  SockName: "\u041D\u043E\u0441\u043E\u043A6"
-  Texture: {fileID: -5096889850361964791, guid: f0b9c18431d104948ae3e6ecc594d018, type: 3}
-  Color: {r: 1, g: 0.8340906, b: 0.4481132, a: 1}
-  Scores: 15
+  SockName: Zig zag
+  Texture: {fileID: 21300000, guid: 493c36ca1e60a504e84636f7367b7930, type: 3}
+  Color: {r: 1, g: 0.4470588, b: 0.58841085, a: 1}
+  Scores: 10

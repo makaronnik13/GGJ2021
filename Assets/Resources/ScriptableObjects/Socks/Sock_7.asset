@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ea2d9bb1eeef254e87d49fb6045fe6c, type: 3}
   m_Name: Sock_7
   m_EditorClassIdentifier: 
-  SockName: "\u041D\u043E\u0441\u043E\u043A7"
-  Texture: {fileID: -71888671198972460, guid: f0b9c18431d104948ae3e6ecc594d018, type: 3}
-  Color: {r: 0.017545555, g: 0.6415094, b: 0, a: 1}
-  Scores: 16
+  SockName: Monday Morning
+  Texture: {fileID: 21300000, guid: 78a037224c5890944a2a0e64549df403, type: 3}
+  Color: {r: 0.8584906, g: 0.08503916, b: 0.85397744, a: 1}
+  Scores: 15

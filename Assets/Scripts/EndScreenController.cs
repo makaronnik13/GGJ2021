@@ -48,25 +48,31 @@ public class EndScreenController : MonoBehaviour
 
     private bool sockFlying = false;
 
+    private List<PlayerScore> localScores = new List<PlayerScore>();
+    private PlayerScore currentScore;
+
+    private Coroutine showScoresCoroutine;
+
     private void Start()
     {
-        ApplyScoreBtn.onClick.AddListener(ApplyScore);
         PlayerName.onValueChanged.AddListener(PlayerNameInputChanged);
+        ScoresController.onScoreRecieved += ScoresRecieved;
     }
 
-    private void PlayerNameInputChanged(string v)
+    private void ScoresRecieved(List<PlayerScore> scores)
     {
-        ApplyScoreBtn.interactable = v != string.Empty;
-    }
+        if (showScoresCoroutine!=null)
+        {
+            StopCoroutine(showScoresCoroutine);
+            showScoresCoroutine = null;
+        }
+        List<PlayerScore> allScores = new List<PlayerScore>(scores);
+        foreach (PlayerScore ps in localScores)
+        {
+            allScores.Add(ps);
+        }
 
-    private void ApplyScore()
-    {
-        PointsView.SetActive(false);
-        ScoresView.SetActive(true);
-
-        PlayerScore newScore = new PlayerScore(PlayerName.text, scoreSum);
-
-        ScoresController.Scores.Add(newScore);
+        allScores = allScores.OrderByDescending(s=>s.score).ToList();
 
         foreach (Transform go in scoresHub)
         {
@@ -74,15 +80,57 @@ public class EndScreenController : MonoBehaviour
         }
 
         int i = 0;
-        foreach (PlayerScore ps in ScoresController.Scores.OrderBy(s=>s.score))
+        foreach (PlayerScore ps in allScores)
         {
             GameObject newLine = Instantiate(ScoreLinePrefab);
             newLine.transform.SetParent(scoresHub);
-            newLine.GetComponent<ScorePanel>().Init(ps.username, ps.score, ps == newScore);
-
+            newLine.GetComponent<ScorePanel>().Init(ps.username, ps.score, ps.username == currentScore.username && ps.score == currentScore.score);
+            newLine.transform.localScale = Vector3.one;
         }
 
-        Debug.Log("ScoreApplyed");
+    }
+
+    private void PlayerNameInputChanged(string v)
+    {
+        ApplyScoreBtn.interactable = v != string.Empty;
+    }
+
+    [ContextMenu("test")]
+    public void Test()
+    {
+        View.SetActive(true);
+        SocksView.SetActive(false);
+        ScoresView.SetActive(true);
+        PlayerName.text = "test";
+        scoreSum = 10;
+        ApplyScore();
+    }
+
+    public void ApplyScore()
+    {
+        PointsView.SetActive(false);
+        ScoresView.SetActive(true);
+
+        currentScore = new PlayerScore(PlayerName.text, scoreSum);
+
+        localScores.Add(currentScore);
+
+        ScoresController.AddScore(currentScore.username, currentScore.score);
+
+        showScoresCoroutine = StartCoroutine(ShowScores());
+    }
+
+    private IEnumerator ShowScores()
+    {
+        yield return new WaitForSeconds(1f);
+        ScoresRecieved(new List<PlayerScore>()
+        {
+            new PlayerScore("Kas", 35),
+            new PlayerScore("Viktor", 25),
+            new PlayerScore("Makar", 21),
+            new PlayerScore("Nagibator3000", 100),
+            new PlayerScore("JohnDoe", 12)
+        });
     }
 
     public void Show()
@@ -116,14 +164,22 @@ public class EndScreenController : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         SocksView.SetActive(false);
-        MonsterView.SetActive(true);
-        MonsterAnimator.SetTrigger("Show");
-        StartCoroutine(RemovePointsFromMonster(GameController.Instance.MonsterTriggered));
+
+        if (GameController.Instance.MonsterTriggered>0)
+        {
+            MonsterView.SetActive(true);
+            MonsterAnimator.SetTrigger("Show");
+            StartCoroutine(RemovePointsFromMonster(GameController.Instance.MonsterTriggered));
+        }
+        else
+        {
+            PlayerName.interactable = true;
+        }
     }
 
     private IEnumerator RemovePointsFromMonster(int monsterTriggered)
     {
-        int scoreForTrigger = 15;
+        int scoreForTrigger = 5;
         int removingScores = scoreForTrigger * monsterTriggered;
         scoreBonus = 0;
 

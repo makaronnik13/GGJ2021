@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ea2d9bb1eeef254e87d49fb6045fe6c, type: 3}
   m_Name: Sock_2
   m_EditorClassIdentifier: 
-  SockName: "\u041D\u043E\u0441\u043E\u043A2"
-  Texture: {fileID: -383234656176628367, guid: f0b9c18431d104948ae3e6ecc594d018, type: 3}
-  Color: {r: 0, g: 0.6297672, b: 1, a: 1}
-  Scores: 11
+  SockName: Squary
+  Texture: {fileID: 21300000, guid: 868e46cf83f0db847a4a9d6d001866ec, type: 3}
+  Color: {r: 0.6415094, g: 0.21484515, b: 0.25919732, a: 1}
+  Scores: 10

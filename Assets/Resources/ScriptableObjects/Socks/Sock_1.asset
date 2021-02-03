@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ea2d9bb1eeef254e87d49fb6045fe6c, type: 3}
   m_Name: Sock_1
   m_EditorClassIdentifier: 
-  SockName: "\u041D\u043E\u0441\u043E\u043A1"
-  Texture: {fileID: -4648133542191851383, guid: f0b9c18431d104948ae3e6ecc594d018, type: 3}
-  Color: {r: 1, g: 0.5828073, b: 0, a: 1}
-  Scores: 10
+  SockName: Doggo Style
+  Texture: {fileID: 21300000, guid: ada17ee52d36b7940a419a79c9428de8, type: 3}
+  Color: {r: 0.8301887, g: 0.6918239, b: 0.49733, a: 1}
+  Scores: 15

@@ -37,6 +37,9 @@ public class GameController : Singleton<GameController>
     [Range(0f, 1f)]
     public float DangerPercent = 0.2f;
 
+    [SerializeField]
+    private List<AudioClip> FoundSockClips;
+
 
     public int MonsterTriggered = 0;
     private bool warningTriggered = false;
@@ -77,18 +80,15 @@ public class GameController : Singleton<GameController>
 
         StartCoroutine(RemoveSocksFromLegs());
 
+
         ISockHolder holder = Holders.Where(h => h.CanPlaceMonster).OrderBy(s => Guid.NewGuid()).FirstOrDefault();
 
-        if (holder == null)
+        if (holder != null)
         {
-            ISockHolder newHolder = holder;
-            holder = Holders.OrderBy(s => Guid.NewGuid()).FirstOrDefault();
-            SockInstance si = holder.Sock;
-            holder.Sock = null;
-            newHolder.Sock = si;
+            holder.MonsterInside = true;
         }
 
-        holder.MonsterInside = true;
+        
         warningTriggered = false;
     }
 
@@ -98,16 +98,20 @@ public class GameController : Singleton<GameController>
 
         if (LeftSock.Value != null)
         {
-            Holders.Where(h => h.CanPlaceSock).OrderBy(s => Guid.NewGuid()).FirstOrDefault().Sock = LeftSock.Value;
+            PlaceSock(LeftSock.Value);
             Debug.Log("remove left sock");
             LeftSock.SetState(null);
         }
         if (RightSock.Value != null)
         {
-            Holders.Where(h => h.CanPlaceSock).OrderBy(s => Guid.NewGuid()).FirstOrDefault().Sock = RightSock.Value;
+            PlaceSock(RightSock.Value);
             Debug.Log("remove right sock");
             RightSock.SetState(null);
         }
+
+        yield return new WaitForSeconds(1.5f);
+
+        ReplicsPlayer.Instance.ShowReplic("That monster stole all my socks! Stinker!");
     }
 
     private void Start()
@@ -122,7 +126,7 @@ public class GameController : Singleton<GameController>
             Holders.Add(sp);
         }
 
-        foreach (SockData sd in Resources.LoadAll<SockData>("ScriptableObjects/Socks"))
+        foreach (SockData sd in Resources.LoadAll<SockData>("ScriptableObjects/Socks").OrderBy(s=>Guid.NewGuid()).Take(9))
         {
             Socks.Add(new SockInstance(sd));
             Socks.Add(new SockInstance(sd));
@@ -133,11 +137,9 @@ public class GameController : Singleton<GameController>
 
         Holders.Where(h => h.CanPlaceMonster).OrderBy(s => Guid.NewGuid()).FirstOrDefault().MonsterInside = true;
 
-        int i = 0;
         foreach (SockInstance si in Socks)
         {
-            Holders[i].Sock = si;
-            i++;
+            PlaceSock(si);
         }
 
         LeftSock.AddListener(LeftSockChanged);
@@ -146,6 +148,39 @@ public class GameController : Singleton<GameController>
         ReplicsPlayer.Instance.ShowReplic("Where are all my socks? Cant see anything. Oh, I have a flashlight!");
     }
 
+    private void PlaceSock(SockInstance si, ISockHolder concreteHolder = null)
+    {
+        if (concreteHolder != null)
+        {
+            concreteHolder.Sock = si;
+            return;
+        }
+
+        List<ISockHolder> avaliableHolders = new List<ISockHolder>();
+
+        int holdersCount = Holders.Where(h=> Vector3.Distance(h.Position, Camera.main.transform.position) >= minCameraDist && h.CanPlaceSock && h.GetType()==typeof(SockHolder)).Count();
+
+
+        if (holdersCount< Holders.Where(h=>h.GetType() == typeof(SockHolder)).Count()/2f)
+        {
+            ISockHolder holder = Holders.Where(h => Vector3.Distance(h.Position, Camera.main.transform.position) >= minCameraDist && h.CanPlaceSock && h.GetType() == typeof(SockPosition)).OrderBy(h => Guid.NewGuid()).FirstOrDefault();
+            if (holder == null)
+            {
+                holder = Holders.Where(h=>h.CanPlaceSock).OrderBy(h=>Guid.NewGuid()).FirstOrDefault();
+            }
+            holder.Sock = si;
+        }
+        else
+        {
+            ISockHolder holder2 = Holders.Where(h => Vector3.Distance(h.Position, Camera.main.transform.position) >= minCameraDist && h.CanPlaceSock && h.GetType() == typeof(SockHolder)).OrderBy(h => Guid.NewGuid()).FirstOrDefault();
+            if (holder2 == null)
+            {
+                holder2 = Holders.Where(h => h.CanPlaceSock).OrderBy(h => Guid.NewGuid()).FirstOrDefault();
+            }
+            holder2.Sock = si;
+        }
+
+    }
 
     private void RightSockChanged(SockInstance sock)
     {
@@ -198,16 +233,14 @@ public class GameController : Singleton<GameController>
 
         if (warningTriggered == false && MonsterSoundSource.volume>0.3f)
         {
-            ReplicsPlayer.Instance.ShowReplic("У меня нехорошее предчувствие.");
+            ReplicsPlayer.Instance.ShowReplic("I have a bad feeling");
             warningTriggered = true;
         }
     }
 
     public void CollectSock(SockInstance sock, Vector3 position)
     {
-        Debug.Log("collect");
-
-        SockFound.PlayOneShot(SockFound.clip);
+        SockFound.PlayOneShot(FoundSockClips.OrderBy(s=>Guid.NewGuid()).FirstOrDefault());
         GameObject newSock = Instantiate(FlyingSockPrefab);
         newSock.transform.position = position;
         newSock.GetComponentInChildren<SockVisual>().SetSock(sock);
@@ -217,6 +250,15 @@ public class GameController : Singleton<GameController>
         if (RightSock.Value != null)
         {
             aim = LeftSockVisual.transform;
+        }
+
+        if (Holders.FirstOrDefault(h=>h.MonsterInside)==null)
+        {
+            ISockHolder holder = Holders.Where(h => h.CanPlaceMonster).OrderBy(s => Guid.NewGuid()).FirstOrDefault();
+            if (holder != null)
+            {
+                holder.MonsterInside = true;
+            }
         }
 
         StartCoroutine(MoveSockTo(newSock, aim, 1f));
@@ -264,11 +306,25 @@ public class GameController : Singleton<GameController>
         }
         else
         {
+            float r = UnityEngine.Random.value;
+            if (r>0.7f)
+            {
+                ReplicsPlayer.Instance.ShowReplic("Damn, too many socks! I have just two legs.");
+            }
+            else if(r>0.2f)
+            {
+                ReplicsPlayer.Instance.ShowReplic("I need pairs!");
+            }
+            else 
+            {
+                ReplicsPlayer.Instance.ShowReplic("These socks are not alike!");
+            }
+           
+
             SockInstance removingSock = RightSock.Value;
             RightSock.SetState(LeftSock.Value);
             LeftSock.SetState(sock);
-
-            Holders.Where(h => Vector3.Distance(h.Position, Camera.main.transform.position) >= minCameraDist).Where(h => h.CanPlaceSock).OrderBy(h => Guid.NewGuid()).FirstOrDefault().Sock = removingSock;
+            PlaceSock(removingSock, sock.holder);
         }
 
         if (Holders.FirstOrDefault(s => s.Sock != null) == null)

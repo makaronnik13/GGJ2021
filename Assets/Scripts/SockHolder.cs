@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,9 @@ public class SockHolder : MonoBehaviour, ISockHolder
     public Animator Animator;
     public string Description;
     private bool used = false;
+
+    private Coroutine clickCoroutine;
+    private float clickDelay = 1f;
 
     private SockInstance sock;
     public SockInstance Sock
@@ -19,6 +23,10 @@ public class SockHolder : MonoBehaviour, ISockHolder
         set
         {
             sock = value;
+            if (sock!=null)
+            {
+                sock.holder = this;
+            }
         }
     }
 
@@ -50,7 +58,18 @@ public class SockHolder : MonoBehaviour, ISockHolder
 
     public void Use()
     {
-    
+        if (clickCoroutine!=null)
+        {
+            return;
+        }
+
+        clickCoroutine = StartCoroutine(BlockClick());
+        AudioSource source = GetComponent<AudioSource>();
+        if (source != null)
+        {
+            source.PlayOneShot(source.clip);
+        }
+
 
         if (MonsterInside)
         {
@@ -59,14 +78,10 @@ public class SockHolder : MonoBehaviour, ISockHolder
             return;
         }
 
+
         if (Sock!=null)
         {
-            AudioSource source = GetComponent<AudioSource>();
-            if (source!=null)
-            {
-                source.PlayOneShot(source.clip);
-            }
-
+            
             if (used)
             {
                 return;
@@ -89,6 +104,12 @@ public class SockHolder : MonoBehaviour, ISockHolder
             Animator?.SetTrigger("Use");
             ReplicsPlayer.Instance.ShowReplic(Description);
         }
+    }
+
+    private IEnumerator BlockClick()
+    {
+        yield return new WaitForSeconds(clickDelay);
+        clickCoroutine = null;
     }
 
     public void UseAfterAnim()

@@ -29,7 +29,8 @@ public class ReplicsPlayer : Singleton<ReplicsPlayer>
     public void ShowReplic(string s)
     {
         PlayerBuble.SetActive(true);
-
+        Typer.PrintCompleted.RemoveAllListeners();
+        MumbleSource.Stop();
         MumbleSource.PlayOneShot(mumbles.OrderBy(c=>Guid.NewGuid()).FirstOrDefault());
         if (typewriterCoroutine!=null)
         {
@@ -43,13 +44,12 @@ public class ReplicsPlayer : Singleton<ReplicsPlayer>
 
     private void PrintCompleted()
     {
-        Typer.PrintCompleted.RemoveListener(PrintCompleted);
         typewriterCoroutine = StartCoroutine(HideBuble());
     }
 
     private IEnumerator HideBuble()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2f);
         PlayerBuble.SetActive(false);
         typewriterCoroutine = null;
     }

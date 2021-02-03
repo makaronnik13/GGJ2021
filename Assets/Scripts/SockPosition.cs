@@ -21,6 +21,7 @@ public class SockPosition : MonoBehaviour, ISockHolder
             {
                 Visual.gameObject.SetActive(true);
                 Visual.SetSock(sock);
+                sock.holder = this;
             }
             else
             {

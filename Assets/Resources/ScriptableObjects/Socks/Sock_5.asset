@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ea2d9bb1eeef254e87d49fb6045fe6c, type: 3}
   m_Name: Sock_5
   m_EditorClassIdentifier: 
-  SockName: "\u041D\u043E\u0441\u043E\u043A5"
-  Texture: {fileID: 8389363550576992056, guid: f0b9c18431d104948ae3e6ecc594d018, type: 3}
-  Color: {r: 1, g: 0.8970643, b: 0, a: 1}
-  Scores: 14
+  SockName: Oblique
+  Texture: {fileID: 21300000, guid: e49e09a2fd7c6e343bdfeb62f5c73c28, type: 3}
+  Color: {r: 0.10622107, g: 0.7264151, b: 0.19154347, a: 1}
+  Scores: 10

@@ -5,7 +5,7 @@ using UnityEngine;
 public class MenuController : MonoBehaviour
 {
     [SerializeField]
-    private Animator TitleAnimator;
+    public Animator TitleAnimator;
 
     [SerializeField]
     private CommicsController Commics;

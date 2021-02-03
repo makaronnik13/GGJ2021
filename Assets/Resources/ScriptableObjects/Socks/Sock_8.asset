@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ea2d9bb1eeef254e87d49fb6045fe6c, type: 3}
   m_Name: Sock_8
   m_EditorClassIdentifier: 
-  SockName: "\u041D\u043E\u0441\u043E\u043A8"
-  Texture: {fileID: -7754445432403714749, guid: f0b9c18431d104948ae3e6ecc594d018, type: 3}
-  Color: {r: 0.6698113, g: 0.17377181, b: 0.5476026, a: 1}
-  Scores: 17
+  SockName: Neon Rain
+  Texture: {fileID: 21300000, guid: e41820d7ea4b33a42a62cafebeaebf6f, type: 3}
+  Color: {r: 0.21150766, g: 0.5162392, b: 0.9150943, a: 1}
+  Scores: 10

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ea2d9bb1eeef254e87d49fb6045fe6c, type: 3}
   m_Name: Sock_10
   m_EditorClassIdentifier: 
-  SockName: "\u041D\u043E\u0441\u043E\u043A10"
-  Texture: {fileID: 8574826228977185861, guid: f0b9c18431d104948ae3e6ecc594d018, type: 3}
-  Color: {r: 0.4746089, g: 0, b: 1, a: 1}
-  Scores: 20
+  SockName: Chill Wave
+  Texture: {fileID: 21300000, guid: f80734ffc7910194fbd3add6ee924e3d, type: 3}
+  Color: {r: 0.62927634, g: 0.6011926, b: 0.6603774, a: 1}
+  Scores: 10
