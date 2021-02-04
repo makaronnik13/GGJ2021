@@ -53,6 +53,8 @@ public class EndScreenController : MonoBehaviour
 
     private Coroutine showScoresCoroutine;
 
+    private bool applyed = false;
+
     private void Start()
     {
         PlayerName.onValueChanged.AddListener(PlayerNameInputChanged);
@@ -61,6 +63,19 @@ public class EndScreenController : MonoBehaviour
 
     private void ScoresRecieved(List<PlayerScore> scores)
     {
+        if (!applyed)
+        {
+            return;
+        }
+        if (scores.Count<5)
+        {
+            scores.Add(new PlayerScore("Kas", "35"));
+            scores.Add(new PlayerScore("Viktor", "25"));
+            scores.Add(new PlayerScore("Makar", "21"));
+            scores.Add(new PlayerScore("Nagibator3000", "100"));
+            scores.Add(new PlayerScore("JohnDoe", "12"));
+        }
+
         if (showScoresCoroutine!=null)
         {
             StopCoroutine(showScoresCoroutine);
@@ -72,7 +87,7 @@ public class EndScreenController : MonoBehaviour
             allScores.Add(ps);
         }
 
-        allScores = allScores.OrderByDescending(s=>s.score).ToList();
+        allScores = allScores.OrderByDescending(s=>int.Parse(s.score)).ToList();
 
         foreach (Transform go in scoresHub)
         {
@@ -84,6 +99,7 @@ public class EndScreenController : MonoBehaviour
         {
             GameObject newLine = Instantiate(ScoreLinePrefab);
             newLine.transform.SetParent(scoresHub);
+
             newLine.GetComponent<ScorePanel>().Init(ps.username, ps.score, ps.username == currentScore.username && ps.score == currentScore.score);
             newLine.transform.localScale = Vector3.one;
         }
@@ -108,10 +124,12 @@ public class EndScreenController : MonoBehaviour
 
     public void ApplyScore()
     {
+        applyed = true;
+
         PointsView.SetActive(false);
         ScoresView.SetActive(true);
 
-        currentScore = new PlayerScore(PlayerName.text, scoreSum);
+        currentScore = new PlayerScore(PlayerName.text, scoreSum.ToString());
 
         localScores.Add(currentScore);
 
@@ -125,11 +143,7 @@ public class EndScreenController : MonoBehaviour
         yield return new WaitForSeconds(1f);
         ScoresRecieved(new List<PlayerScore>()
         {
-            new PlayerScore("Kas", 35),
-            new PlayerScore("Viktor", 25),
-            new PlayerScore("Makar", 21),
-            new PlayerScore("Nagibator3000", 100),
-            new PlayerScore("JohnDoe", 12)
+           
         });
     }
 

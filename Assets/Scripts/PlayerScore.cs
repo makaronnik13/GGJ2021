@@ -6,9 +6,9 @@ public class PlayerScore
 {
     
     public string username;
-    public int score;
+    public string score;
 
-    public PlayerScore(string playerName, int score)
+    public PlayerScore(string playerName, string score)
     {
         this.username = playerName;
         this.score = score;

@@ -19,13 +19,31 @@ public class ScoresController : MonoBehaviour
     private void Start()
     {
         PNConfiguration pnConfiguration = new PNConfiguration();
-        pnConfiguration.SubscribeKey = "sub-c-bf960f48-661d-11eb-bda1-0e29543bebe5";
-        pnConfiguration.PublishKey = "pub-c-4ac9fc10-afa1-45da-9894-31376c2469af";
+        pnConfiguration.SubscribeKey = "sub-c-7510f5ce-66df-11eb-941a-1292edd3dfab";
+        pnConfiguration.PublishKey = "pub-c-489ed4c0-0e28-4b6a-a3b5-b91f6bdba9f8";
         pnConfiguration.LogVerbosity = PNLogVerbosity.BODY;
         pnConfiguration.UUID = System.Guid.NewGuid().ToString();
 
 
         pubnub = new PubNub(pnConfiguration);
+
+        PlayerScore myFireObject = new PlayerScore("testUser", 0.ToString());
+        string fireobject = JsonUtility.ToJson(myFireObject);
+        pubnub.Fire()
+          .Channel("my_channel")
+          .Message(fireobject)
+          .Async((result, status) => {
+              if (status.Error)
+              {
+                  Debug.Log(status.Error);
+                  Debug.Log(status.ErrorData.Info);
+              }
+              else
+              {
+                  Debug.Log(string.Format("Fire Timetoken: {0}", result.Timetoken));
+              }
+          });
+
 
         pubnub.SubscribeCallback += (sender, e) => 
         {
@@ -37,60 +55,51 @@ public class ScoresController : MonoBehaviour
             {
             }
 
-            Debug.Log(mea.MessageResult);
 
             if (mea.MessageResult != null)
             {
                 Debug.Log("recieved");
 
+
+                Debug.Log(mea.MessageResult.MessageType);
+                Debug.Log(mea.MessageResult.Payload);
+
                 Dictionary<string, object> msg = mea.MessageResult.Payload as Dictionary<string, object>;
 
-                List<string> users = new List<string>();
-                List<int> scores = new List<int>();
+                    List<string> users = new List<string>();
+                    List<string> scores = new List<string>();
 
-                Scores.Clear();
+                    Scores.Clear();
 
-                foreach (KeyValuePair<string, object> pairs in msg)
-                {
-                    Debug.Log("____");
-                    string s = "";
-
-                    if (pairs.Key == "username")
+                    foreach (KeyValuePair<string, object> pairs in msg)
                     {
-                        Debug.Log(pairs.Value);
+                        string s = "";
 
-                        users = (pairs.Value as string[]).ToList();
+                        if (pairs.Key == "username")
+                        {
+                        if ((pairs.Value as object[]).Length>0)
+                        {
+                            users = (pairs.Value as string[]).ToList();
+                        }
+                            
+                        }
+                        if (pairs.Key == "score")
+                        {
+                        if ((pairs.Value as object[]).Length > 0)
+                        {
+                            scores = (pairs.Value as string[]).ToList();
+                        }
+                        }
                     }
-                    if (pairs.Key == "score")
+
+
+                    for (int i = 0; i < scores.Count; i++)
                     {
-                        Debug.Log(pairs.Value);
-                        Debug.Log(pairs.Value as int[]);
-
-                        scores = (pairs.Value as int[]).ToList();
-
+                        Scores.Add(new PlayerScore(users[i], scores[i]));
                     }
-                }
 
-                Debug.Log(scores.Count+"/"+users.Count);
+                    onScoreRecieved(Scores);
 
-                for (int i = 0; i < scores.Count; i++)
-                {
-                    Debug.Log(users[i]+"/"+scores[i]);
-
-                    Scores.Add(new PlayerScore(users[i], scores[i]));
-                }
-
-                if (Scores.Count<10)
-                {
-                    Scores.Add(new PlayerScore("Username", 5));
-                    Scores.Add(new PlayerScore("Viktor", 12));
-                    Scores.Add(new PlayerScore("Kas", 32));
-                    Scores.Add(new PlayerScore("Makar", 21));
-                    Scores.Add(new PlayerScore("JohnDoe", 42));
-                    Scores.Add(new PlayerScore("Nagibator777", 70));
-                }
-
-                onScoreRecieved(Scores);
             }
             if (mea.PresenceEventResult != null)
             {
@@ -100,7 +109,7 @@ public class ScoresController : MonoBehaviour
 
         pubnub.Subscribe()
             .Channels(new List<string>() {
-                "my_chanel2"
+                "my_channel2"
             })
             .WithPresence()
             .Execute();
@@ -110,27 +119,29 @@ public class ScoresController : MonoBehaviour
     [ContextMenu("Test")]
     public void Test()
     {
-        AddScore(user, testScore);
+        AddScore(user, testScore.ToString());
     }
 
-    public void AddScore(string playerName, int score)
+    public void AddScore(string playerName, string score)
     {
         PlayerScore scoreObj = new PlayerScore(playerName, score);
         string msg = JsonUtility.ToJson(scoreObj);
 
-        Debug.Log(msg);
+        pubnub.Publish()
+      .Channel("my_channel")
+      .Message(msg)
+      .Async((result, status) => {
+          if (!status.Error)
+          {
+              Debug.Log(string.Format("Publish Timetoken: {0}", result.Timetoken));
+          }
+          else
+          {
+              Debug.Log(status.Error);
+              Debug.Log(status.ErrorData.Info);
+          }
+      });
 
-        Debug.Log("Add "+playerName+"/"+score);
-        pubnub.Fire().Channel("my_chanel").Message(msg).Async((result, status)=>
-        {
-            if (status.Error)
-            {
-                Debug.Log("error");
-            }
-            else
-            {
-                Debug.Log("sucsess "+result.Timetoken);
-            }
-        });
+      
     }
 }

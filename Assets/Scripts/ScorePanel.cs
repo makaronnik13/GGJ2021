@@ -7,7 +7,7 @@ public class ScorePanel : MonoBehaviour
     [SerializeField]
     private TMPro.TextMeshProUGUI Name, Score;
 
-    public void Init(string name, int score, bool selected)
+    public void Init(string name, string score, bool selected)
     {
         if (selected)
         {
@@ -15,6 +15,6 @@ public class ScorePanel : MonoBehaviour
             Score.color = Color.yellow;
         }
         Name.text = name;
-        Score.text = score.ToString();
+        Score.text = score;
     }
 }
